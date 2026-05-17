@@ -31,8 +31,7 @@
     "laravel/pint": "^1.29",
     "pestphp/pest": "^4.4",
     "pestphp/pest-plugin-laravel": "^4.1",
-    "rector/rector": "^2.3",
-    "stackra/laravel-docker": "@dev"
+    "rector/rector": "^2.3"
   },
   "scripts": {
     "post-autoload-dump": [
