@@ -1,0 +1,30 @@
+{
+  "name": "@stackra/app",
+  "version": "0.1.0",
+  "description": "Stackra Application Shell — Turborepo workspace integration.",
+  "private": true,
+  "license": "MIT",
+  "author": {
+    "name": "Stackra Team",
+    "email": "dev@stackra.com",
+    "url": "https://stackra.com"
+  },
+  "scripts": {
+    "deps": "composer install --no-interaction --prefer-dist --optimize-autoloader && composer dump-autoload --optimize",
+    "deps:prod": "composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev",
+    "build": "echo 'Stateless app — no build artifacts'",
+    "dev": "php artisan octane:start --server=frankenphp --watch",
+    "start": "php artisan octane:start --server=frankenphp --host=0.0.0.0 --port=8000",
+    "test": "php artisan test",
+    "test:coverage": "php artisan test --coverage --coverage-clover=coverage.xml",
+    "lint": "vendor/bin/pint --test",
+    "lint:fix": "vendor/bin/pint",
+    "analyse": "vendor/bin/phpstan analyse --no-progress",
+    "clean": "rm -rf vendor .turbo bootstrap/cache/*.php"
+  },
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=10"
+  },
+  "packageManager": "pnpm@11.1.2"
+}

@@ -1,0 +1,15 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "deps": {
+      "inputs": ["composer.json"]
+    },
+    "test": {
+      "dependsOn": ["deps"],
+      "inputs": ["bootstrap/**", "config/**", "tests/**/*.php"]
+    },
+    "lint": {
+      "inputs": ["bootstrap/**/*.php", "config/**/*.php"]
+    }
+  }
+}
