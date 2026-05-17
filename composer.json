@@ -1,7 +1,7 @@
 {
   "name": "stackra/app",
   "type": "project",
-  "description": "Stackra Application Shell — minimal, stateless, Octane-first entry point.",
+  "description": "Stackra Application Shell \u2014 minimal, stateless, Octane-first entry point.",
   "keywords": [
     "laravel",
     "octane",
@@ -22,7 +22,8 @@
   ],
   "require": {
     "php": "^8.4|8.5",
-    "laravel/octane": "^2.17"
+    "laravel/octane": "^2.17",
+    "laravel/framework": "^13.0"
   },
   "require-dev": {
     "fakerphp/faker": "*",
