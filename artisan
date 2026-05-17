@@ -1,0 +1,59 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+/**
+ * =============================================================================
+ * Artisan Console Entry Point
+ * =============================================================================
+ *
+ * This file handles all CLI interactions with the application:
+ *   - Artisan commands (migrate, queue:work, schedule:run, etc.)
+ *   - Custom module commands (auto-discovered via service providers)
+ *   - Compiler and build commands (di:compile, aop:clear, etc.)
+ *
+ * Deployment roles use this same entry point:
+ *   - Web cluster:    FrankenPHP worker (public/frankenphp-worker.php)
+ *   - Worker cluster: php artisan queue:work --queue=high,default,low
+ *   - Scheduler:      php artisan schedule:run (cron or Laravel Cloud)
+ *
+ * Monorepo note:
+ *   The autoloader resolution checks both the app-level vendor/ and the
+ *   monorepo root vendor/ to support both standalone and monorepo usage.
+ */
+
+use Illuminate\Foundation\Application;
+use Symfony\Component\Console\Input\ArgvInput;
+
+// ── Performance Monitoring ───────────────────────────────────────────────────
+define('LARAVEL_START', microtime(true));
+
+// ── Autoloader Resolution ────────────────────────────────────────────────────
+// In the monorepo, vendor/ lives at the app level (composer install runs here).
+// This supports both monorepo development and standalone deployment.
+$autoloadPaths = [
+    __DIR__ . '/vendor/autoload.php',
+    __DIR__ . '/../../vendor/autoload.php',
+];
+
+$loaded = false;
+
+foreach ($autoloadPaths as $path) {
+    if (file_exists($path)) {
+        require_once $path;
+        $loaded = true;
+        break;
+    }
+}
+
+if (! $loaded) {
+    fwrite(STDERR, "Composer autoloader not found. Run: composer install\n");
+    exit(1);
+}
+
+// ── Bootstrap & Execute ──────────────────────────────────────────────────────
+/** @var Application $app */
+$app = require_once __DIR__ . '/bootstrap/app.php';
+
+exit($app->handleCommand(new ArgvInput()));
