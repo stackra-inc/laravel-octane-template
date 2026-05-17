@@ -1,0 +1,17 @@
+# =============================================================================
+# Storage Directory
+# =============================================================================
+# This directory exists only for local development. In production, all state
+# is externalized:
+#   - Cache → Redis
+#   - Sessions → Redis
+#   - Queues → Redis
+#   - Files → Object Storage (S3/R2)
+#   - Logs → stderr (CloudWatch/Datadog)
+#
+# Laravel requires these directories to exist at boot time, even if they're
+# never written to (when using external drivers).
+# =============================================================================
+
+*
+!.gitignore
