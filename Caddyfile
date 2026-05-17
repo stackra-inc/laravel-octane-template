@@ -1,0 +1,86 @@
+# =============================================================================
+# FrankenPHP / Caddy Configuration
+# =============================================================================
+#
+# This Caddyfile configures FrankenPHP for production. It handles:
+#   - HTTP/2 and HTTP/3 (QUIC) automatically
+#   - Automatic HTTPS via Let's Encrypt (when not behind a load balancer)
+#   - Worker mode (keeps PHP in memory)
+#   - Static file serving (public/ directory)
+#   - Health check endpoint
+#   - Gzip/Brotli compression
+#   - Security headers
+#
+# Usage:
+#   frankenphp run --config Caddyfile
+#
+# In Docker, this is the default config. Override via volume mount or
+# environment variables for different environments.
+#
+# =============================================================================
+
+{
+	# ── Global Options ────────────────────────────────────────────────────────
+	# Disable admin API in production (security)
+	admin off
+
+	# FrankenPHP worker configuration
+	frankenphp {
+		# Number of worker threads (0 = auto-detect CPU cores)
+		num_threads {$FRANKENPHP_NUM_THREADS:0}
+	}
+
+	# Logging to stderr (captured by Docker/CloudWatch)
+	log {
+		output stderr
+		format json
+		level {$LOG_LEVEL:ERROR}
+	}
+}
+
+# ── Site Configuration ────────────────────────────────────────────────────────
+{$APP_SERVER_NAME:localhost} {
+
+	# ── Compression ───────────────────────────────────────────────────────────
+	encode zstd br gzip
+
+	# ── Security Headers ──────────────────────────────────────────────────────
+	header {
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "SAMEORIGIN"
+		X-XSS-Protection "0"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# Remove server identification
+		-Server
+		-X-Powered-By
+	}
+
+	# ── Static Files ──────────────────────────────────────────────────────────
+	# Serve static assets directly (CSS, JS, images) without hitting PHP.
+	# Cache for 1 year with immutable (fingerprinted filenames).
+	@static path /build/* /assets/* /favicon.ico /robots.txt
+	handle @static {
+		root * /app/public
+		file_server
+		header Cache-Control "public, max-age=31536000, immutable"
+	}
+
+	# ── Health Check ──────────────────────────────────────────────────────────
+	# Fast health check that doesn't go through the full PHP stack.
+	# Used by load balancers and container orchestrators.
+	handle /up {
+		respond "OK" 200
+	}
+
+	# ── PHP Worker ────────────────────────────────────────────────────────────
+	# All other requests are handled by the FrankenPHP worker.
+	route {
+		root * /app/public
+		php_server {
+			worker /app/public/frankenphp-worker.php {
+				num {$OCTANE_WORKERS:auto}
+				max_requests {$OCTANE_MAX_REQUESTS:1000}
+			}
+		}
+	}
+}
