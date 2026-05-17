@@ -16,7 +16,9 @@ environments/.env.secrets
 environments/.env.docker
 
 # ── Runtime / Cache ───────────────────────────────────────────────────────────
-/storage/
+/storage/*
+!/storage/.gitignore
+!/storage/**/.gitkeep
 /bootstrap/cache/*.php
 
 # ── Binaries ──────────────────────────────────────────────────────────────────
